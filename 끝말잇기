@@ -1,0 +1,36 @@
+import requests
+url = "https://stdict.korean.go.kr/api/search.do"
+apikey = '24261BA49C4B066769646918DB8A2104'
+params = {
+    'key': apikey,
+    'q': input("검색할 단어를 입력하세요: "),
+    'req_type': 'json',
+    'num': 100,
+    'advanced': 'y',
+    'method': input("(exact: 일치검색, start: 시작)중 하나를 입력하시오: "),
+    'type1': ['word'],
+    'pos': 1,
+    'letter_s': 2
+}
+
+response = requests.get(url, params)
+print(response.status_code)
+if response.json():
+    # print(response.url)
+    # print(response.text)
+    # print(response.content)
+    print(response.json())
+    for d in response.json()['channel']['item']:
+        print(d['word'], d['sense']['definition'])
+
+else:
+    print(f"상태 코드: {response.status_code} 에러")
+
+#ㅇ
+used = []
+sc = 0
+import time
+print("게임을 시작합니다!")
+print("---------------")
+while True:
+    player = str(input("단어를 입력하세요"))
