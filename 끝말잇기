@@ -1,36 +1,72 @@
 import requests
+from dotenv import load_dotenv
+import os
 url = "https://stdict.korean.go.kr/api/search.do"
-apikey = '24261BA49C4B066769646918DB8A2104'
-params = {
-    'key': apikey,
-    'q': input("검색할 단어를 입력하세요: "),
-    'req_type': 'json',
-    'num': 100,
-    'advanced': 'y',
-    'method': input("(exact: 일치검색, start: 시작)중 하나를 입력하시오: "),
-    'type1': ['word'],
-    'pos': 1,
-    'letter_s': 2
-}
+load_dotenv()
+apikey = os.getenv('API')
+def parameter(word,method):
+    params = {
+        'key': apikey,
+        'q': word,
+        'req_type': 'json',
+        'num': 100,
+        'advanced': 'y',
+        'method': "start",
+        'type1': ['word'],
+        'pos': 1,
+        'letter_s': 2,
+        'multimedia': [0]
+    }
+    temp_wordlst = {}
+    response = requests.get(url, params)
+    if response.json():
+        for d in response.json()['channel']['item']:
+            temp_wordlst[d["word"]] = d["sense"]["definition"]
+        cm_wordlst = list(set(temp_wordlst.keys()-set(used)))
+        key = choice(cm_wordlst)
+        return key, temp_wordlst[key]
+def checkword(word):
+    params = {
+        'key': apikey,
+        'q': word,
+        'req_type': 'json',
+        'num': 100,
+        'advanced': 'y',
+        'method': "exact",
+        'type1': ['word'],
+        'pos': 1,
+        'letter_s': 2,
+        'multimedia': [0]
+    }
 
-response = requests.get(url, params)
-print(response.status_code)
-if response.json():
-    # print(response.url)
-    # print(response.text)
-    # print(response.content)
-    print(response.json())
-    for d in response.json()['channel']['item']:
-        print(d['word'], d['sense']['definition'])
+    response = requests.get(url, params)
+    if response.json():
+        for d in response.json()['channel']['item']:
+            print(d['sense']['definition'])
+            return True
 
-else:
-    print(f"상태 코드: {response.status_code} 에러")
+    else:
+        print("존재하지 않는 단어입니다, 다른 단어를 입력해주세요")
 
-#ㅇ
+#safdsaads
 used = []
-sc = 0
-import time
+from random import choice
 print("게임을 시작합니다!")
 print("---------------")
 while True:
-    player = str(input("단어를 입력하세요"))
+    print(' ')
+    player = str(input("단어를 입력하세요: "))
+    if checkword(player):
+        if player in used:
+            print("이미 사용한 단어입니다. 단어를 다시 입력해주세요.")
+            continue
+        else:
+            used.append(player)
+
+    else:
+        continue
+    print(' ')
+    cm_word, cm_discription = parameter(player[-1], "start")
+    used.append(cm_word)
+    print(cm_word)
+    print(cm_discription)
